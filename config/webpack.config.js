@@ -43,6 +43,14 @@ const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 
 const isExtendingEslintConfig = process.env.EXTEND_ESLINT === 'true';
 
+const chalk = require('chalk')
+const progressBarPlugin = require('progress-bar-webpack-plugin')({
+  width: 60
+  , format: `${chalk.green('build')} [ ${chalk.cyan(':bar')} ]`
+    + ` ${chalk.cyan(':msg')} ${chalk.red('(:percent)')}`
+  , clear: true
+})
+
 const imageInlineSizeLimit = parseInt(
   process.env.IMAGE_INLINE_SIZE_LIMIT || '10000'
 );
@@ -514,6 +522,7 @@ const webpackProdConfig = function (webpackEnv) {
       ],
     },
     plugins: [
+      progressBarPlugin,
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
