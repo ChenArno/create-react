@@ -37,6 +37,8 @@ const appPackageJson = require(paths.appPackageJson);
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = process.env.GENERATE_SOURCEMAP !== 'false';
+
+const shouldAnalyze = process.env.GENERATE_ANALYZE === "true";
 // Some apps do not need the benefits of saving a web request, so not inlining the chunk
 // makes for a smoother build process.
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
@@ -49,6 +51,16 @@ const imageInlineSizeLimit = parseInt(
 
 const vendors = ['antd', 'react-router-dom', 'react', 'react-dom']
 
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin
+
+const chalk = require('chalk')
+const progressBarPlugin = require('progress-bar-webpack-plugin')({
+  width: 60
+  , format: `${chalk.green('build')} [ ${chalk.cyan(':bar')} ]`
+    + ` ${chalk.cyan(':msg')} ${chalk.red('(:percent)')}`
+  , clear: true
+})
 // Check if TypeScript is setup
 const useTypeScript = fs.existsSync(paths.appTsConfig);
 
@@ -514,6 +526,8 @@ const webpackProdConfig = function (webpackEnv) {
       ],
     },
     plugins: [
+      shouldAnalyze && new BundleAnalyzerPlugin(), // 分析页
+      progressBarPlugin,
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
         Object.assign(
@@ -684,15 +698,5 @@ const webpackProdConfig = function (webpackEnv) {
     performance: false,
   };
 };
-
-if (process.env.npm_config_report) {
-  const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
-    .BundleAnalyzerPlugin
-  webpackProdConfig.plugins.push(
-    new BundleAnalyzerPlugin({
-      analyzerPort: 8020
-    })
-  )
-}
 
 module.exports = webpackProdConfig

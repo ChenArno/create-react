@@ -25,7 +25,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "removeComments": true // 编译 js 的时候，删除掉注释
   },
   "include": [
     "src"
